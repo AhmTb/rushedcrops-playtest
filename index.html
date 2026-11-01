@@ -93,6 +93,7 @@
     window.addEventListener('blur', () => { if (document.pointerLockElement) document.exitPointerLock(); pause(); });
     document.addEventListener('keydown', event => {
       if (event.code === 'Escape' && game) {
+        if (document.fullscreenElement) document.exitFullscreen();
         if (document.pointerLockElement) document.exitPointerLock();
         pause();
       }
@@ -101,7 +102,11 @@
     document.getElementById('fullscreen').onclick = async () => {
       try {
         if (document.fullscreenElement) await document.exitFullscreen();
-        else await stage.requestFullscreen();
+        else if (game) {
+          canvas.focus();
+          await canvas.requestPointerLock();
+          game.SetFullscreen(1);
+        }
       } catch (error) { status.textContent = 'Fullscreen is unavailable in this browser.'; }
     };
     const config = {
