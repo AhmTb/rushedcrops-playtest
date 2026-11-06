@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#17251b">
-  <meta name="description" content="Play Rushed Crops in your browser. Explore the farm and test the tools.">
-  <title>Rushed Crops · Playtest</title>
+  <meta name="description" content="Play Rushed Crops in your browser. Grow crops, trade, and explore the farm.">
+  <title>Rushed Crops</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2317251b'/%3E%3Cpath d='M22 24Q14 46 16 56Q32 48 42 30Z' fill='%23f1a24b'/%3E%3Cpath d='M32 26Q24 6 32 8L37 21Q44 5 48 12L41 27Q59 18 56 26L43 33Z' fill='%2384b86c'/%3E%3C/svg%3E">
   <style>
     :root{color-scheme:dark;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#101a14;color:#f3efdc}
@@ -15,7 +15,7 @@
   </style>
 </head>
 <body>
-  <header><div class="brand">Rushed <span>Crops</span></div><div class="tag">Playtest</div></header>
+  <header><div class="brand">Rushed <span>Crops</span></div></header>
   <main>
     <section class="stage" id="stage" aria-label="Rushed Crops game">
       <canvas id="unity-canvas" width="1280" height="720" tabindex="0" aria-label="Game. Use WASD to move, mouse to look, E to interact, and Escape to pause."></canvas>
@@ -30,13 +30,13 @@
         </div>
       </div>
     </section>
-    <div class="bar"><span class="hint">WASD to move · E to interact · Esc to pause</span><div class="actions"><button class="secondary" id="fullscreen">Fullscreen</button><a class="secondary" href="https://github.com/AhmTb/rushedcrops-playtest/issues/new?title=Playtest%20feedback" target="_blank" rel="noopener noreferrer">Report a bug ↗</a></div></div>
+    <div class="bar"><span class="hint">WASD to move · E to interact · Esc to pause</span><div class="actions"><button class="secondary" id="fullscreen">Fullscreen</button></div></div>
     <section class="instructions" aria-label="How to play">
       <div><h2>Controls</h2><p><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> Move &nbsp; <kbd>Mouse</kbd> Look &nbsp; <kbd>Shift</kbd> Sprint<br><kbd>Space</kbd> Jump &nbsp; <kbd>E</kbd> Pick up / plant / harvest<br><kbd>1</kbd>–<kbd>5</kbd> Select hotbar slot &nbsp; <kbd>Left click</kbd> Use tool</p></div>
       <div><h2>Try the tools</h2><p>Pick up a tool from a stump near the plots. Till a square with the hoe, or fill the watering can at the river.</p></div>
     </section>
   </main>
-  <footer>Rushed Crops playtest · You start over when you reload.</footer>
+  <footer>Rushed Crops · You start over when you reload.</footer>
   <script>
     const canvas = document.getElementById('unity-canvas');
     const stage = document.getElementById('stage');
@@ -48,7 +48,7 @@
     let failed = false;
     function pause() {
       if (!game || failed) return;
-      game.SendMessage('WebPlaytest', 'Pause');
+      game.SendMessage('WebBridge', 'Pause');
       veil.hidden = false;
       if (started) {
         document.getElementById('heading').innerHTML = 'Paused';
@@ -82,7 +82,7 @@
       if (document.pointerLockElement === canvas) {
         started = true;
         veil.hidden = true;
-        game.SendMessage('WebPlaytest', 'Resume');
+        game.SendMessage('WebBridge', 'Resume');
       } else pause();
     });
     document.addEventListener('pointerlockerror', () => { status.textContent = 'Click ' + play.textContent + ' to capture your mouse.'; });
@@ -109,9 +109,9 @@
       } catch (error) { status.textContent = 'Your browser could not enter fullscreen.'; }
     };
     const config = {
-      dataUrl: 'Build/15f4caddf9f212166a554ac7f180721c.data.unityweb',
+      dataUrl: 'Build/2e4f81f6fcfe2555244c7af79aa872f1.data.unityweb',
       frameworkUrl: 'Build/8620c79feb73bcc7bdb3a634e08d8e83.framework.js.unityweb',
-      codeUrl: 'Build/aab2689e7228b06a71cefff4339bd199.wasm.unityweb',
+      codeUrl: 'Build/8484ebea0e5bd4bd7092a80e23f97200.wasm.unityweb',
       streamingAssetsUrl: 'StreamingAssets',
       companyName: "DefaultCompany",
       productName: "RushedCrops",
@@ -120,7 +120,7 @@
       showBanner: (message, type) => { if (type === 'error') fatal(message); else console.warn(message); }
     };
     const loader = document.createElement('script');
-    loader.src = 'Build/18ec8a80c73487f2d37bda3cd9a8704e.loader.js';
+    loader.src = 'Build/00090a40ee2837287d2ee7ffe7f32800.loader.js';
     loader.onerror = () => fatal('Check your connection and reload the page.');
     loader.onload = () => createUnityInstance(canvas, config, progress => {
       document.getElementById('fill').style.width = `${Math.round(progress * 100)}%`;
@@ -128,7 +128,7 @@
     }).then(instance => {
       game = instance;
       if (failed) return;
-      game.SendMessage('WebPlaytest', 'Pause');
+      game.SendMessage('WebBridge', 'Pause');
       play.disabled = false;
       play.textContent = 'Play';
       status.textContent = '';
