@@ -2,7 +2,9 @@
 
 [Play Rushed Crops](https://ahmtb.github.io/rushedcrops-playtest/)
 
-An early Unity WebGL playtest of Rushed Crops. Use a desktop browser with a keyboard and mouse. The game runs in the browser without an installation or account. Progress resets on reload.
+A Unity WebGL playtest of Rushed Crops. Use a desktop browser with a keyboard and mouse. The game runs in the browser without an installation or account. Progress is saved in this browser; use Play on the main menu to resume. Clearing site data removes the local save.
+
+Updated November 25, 2026 from Unity source commit `5407e5c`, including the current saved project assets. This update includes the main menu and saved-game flow, tutorial, merchant fixes, mini crop enemies, boss progression, and barn repairs.
 
 | Control | Action |
 | --- | --- |

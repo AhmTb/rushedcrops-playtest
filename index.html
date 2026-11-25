@@ -36,7 +36,7 @@
       <div><h2>Try the tools</h2><p>Pick up a tool from a stump near the plots. Till a square with the hoe, or fill the watering can at the river.</p></div>
     </section>
   </main>
-  <footer>Rushed Crops · You start over when you reload.</footer>
+  <footer>Rushed Crops</footer>
   <script>
     const canvas = document.getElementById('unity-canvas');
     const stage = document.getElementById('stage');
@@ -46,8 +46,19 @@
     let game = null;
     let started = false;
     let failed = false;
+    let inMenu = true;
+    window.rushedCropsSetMenu = value => {
+      inMenu = value;
+      if (!game || failed) return;
+      if (inMenu) {
+        veil.hidden = true;
+        if (document.pointerLockElement) document.exitPointerLock();
+        game.SendMessage('WebBridge', 'Resume');
+      } else pause();
+    };
     function pause() {
       if (!game || failed) return;
+      if (inMenu) { veil.hidden = true; return; }
       game.SendMessage('WebBridge', 'Pause');
       veil.hidden = false;
       if (started) {
@@ -72,6 +83,12 @@
     play.onclick = () => {
       if (!game) return;
       canvas.focus();
+      if (inMenu) {
+        started = true;
+        veil.hidden = true;
+        game.SendMessage('WebBridge', 'Resume');
+        return;
+      }
       try {
         const request = canvas.requestPointerLock();
         if (request && request.catch) request.catch(() => { status.textContent = 'Your browser blocked mouse capture. Click ' + play.textContent + ' to retry.'; });
@@ -79,6 +96,7 @@
     };
     document.addEventListener('pointerlockchange', () => {
       if (!game || failed) return;
+      if (inMenu) { if (document.pointerLockElement) document.exitPointerLock(); return; }
       if (document.pointerLockElement === canvas) {
         started = true;
         veil.hidden = true;
@@ -91,7 +109,7 @@
     });
     window.addEventListener('blur', () => { if (document.pointerLockElement) document.exitPointerLock(); pause(); });
     document.addEventListener('keydown', event => {
-      if (event.code === 'Escape' && game) {
+      if (event.code === 'Escape' && game && !inMenu) {
         if (document.fullscreenElement) document.exitFullscreen();
         if (document.pointerLockElement) document.exitPointerLock();
         pause();
@@ -103,15 +121,15 @@
         if (document.fullscreenElement) await document.exitFullscreen();
         else if (game) {
           canvas.focus();
-          await canvas.requestPointerLock();
+          if (!inMenu) await canvas.requestPointerLock();
           game.SetFullscreen(1);
         }
       } catch (error) { status.textContent = 'Your browser could not enter fullscreen.'; }
     };
     const config = {
-      dataUrl: 'Build/2e4f81f6fcfe2555244c7af79aa872f1.data.unityweb',
-      frameworkUrl: 'Build/8620c79feb73bcc7bdb3a634e08d8e83.framework.js.unityweb',
-      codeUrl: 'Build/8484ebea0e5bd4bd7092a80e23f97200.wasm.unityweb',
+      dataUrl: 'Build/2a79cfc0bd76498e2c6f1c61f277d4fc.data.unityweb',
+      frameworkUrl: 'Build/8b34df7016bf7cdd14e4bd3e64d85eeb.framework.js.unityweb',
+      codeUrl: 'Build/5fc16354832d03a63698e2adf8a8fae5.wasm.unityweb',
       streamingAssetsUrl: 'StreamingAssets',
       companyName: "DefaultCompany",
       productName: "RushedCrops",
@@ -120,7 +138,7 @@
       showBanner: (message, type) => { if (type === 'error') fatal(message); else console.warn(message); }
     };
     const loader = document.createElement('script');
-    loader.src = 'Build/00090a40ee2837287d2ee7ffe7f32800.loader.js';
+    loader.src = 'Build/0d8d690e87a1d761a563ffc983eb28b8.loader.js';
     loader.onerror = () => fatal('Check your connection and reload the page.');
     loader.onload = () => createUnityInstance(canvas, config, progress => {
       document.getElementById('fill').style.width = `${Math.round(progress * 100)}%`;
@@ -128,7 +146,9 @@
     }).then(instance => {
       game = instance;
       if (failed) return;
-      game.SendMessage('WebBridge', 'Pause');
+      started = true;
+      veil.hidden = inMenu;
+      game.SendMessage('WebBridge', inMenu ? 'Resume' : 'Pause');
       play.disabled = false;
       play.textContent = 'Play';
       status.textContent = '';
